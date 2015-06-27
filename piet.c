@@ -114,7 +114,7 @@ static void load_program(const char *filename, unsigned int codel)
 
 	image = IMG_Load(filename);
 
-	if (!image) 
+	if (!image)
 		goto bad;
 
 	/* Ensure the program.image is sane. */
@@ -145,7 +145,7 @@ static void load_program(const char *filename, unsigned int codel)
 			p ++;
 		}
 	}
-		
+
 bad:
 	if (image) {
 		SDL_FreeSurface(image);
@@ -326,7 +326,7 @@ static int slide_white(struct codel *next_codel)
 				}
 			}
 		} while (found);
-	
+
 		/* Get next color block. */
 		found = 0;
 		for (attempt = 0; attempt < 9; attempt ++) {
@@ -351,8 +351,8 @@ static int slide_white(struct codel *next_codel)
 	return found;
 }
 
-#define STACK_PUSH(val)	do { stack.array[stack.sp ++] = (val); } while(0)
-#define STACK_POP(val) do { if (stack.sp < 1) return; (val) = stack.array[--stack.sp]; } while(0)
+#define STACK_PUSH(val)	do { stack.array[stack.sp] = (val);  stack.sp++; } while(0)
+#define STACK_POP(val) do { if (stack.sp < 1) return; stack.sp--; (val) = stack.array[stack.sp]; } while(0)
 
 #define OP_2_VALUES(name, op)					\
 	static void op_##name(void)					\
@@ -415,7 +415,7 @@ static void op_not(void)
 
 	if (stack.sp < 1)
 		return;
-	
+
 	STACK_POP(val);
 
 	if (val)
@@ -423,7 +423,7 @@ static void op_not(void)
 	else
 		STACK_PUSH(1);
 }
-	
+
 static void op_greater(void)
 {
 	int val1;
@@ -431,7 +431,7 @@ static void op_greater(void)
 
 	if (stack.sp < 2)
 		return;
-	
+
 	STACK_POP(val1);
 	STACK_POP(val2);
 
@@ -476,7 +476,7 @@ static void op_roll(void)
 			}
 			stack.array[stack.sp-depth] = last;
 		}
-	} 
+	}
 	else if (rolls < 0) {
 		rolls = -rolls;
 		for (i=0; i<rolls; i++) {
@@ -510,16 +510,26 @@ static void op_out_char(void)
 static void op_in_number(void)
 {
 	int val;
+	int rc;
 
-	fscanf(stdin, "%d", &val);
+	rc = fscanf(stdin, "%d", &val);
+	if (rc != 1) {
+		printf("user input error\n");
+		exit(1);
+	}
 	STACK_PUSH(val);
 }
 
 static void op_in_char(void)
 {
 	char val;
+	int rc;
 
-	fscanf(stdin, "%c", &val);
+	rc = fscanf(stdin, "%c", &val);
+	if (rc != 1) {
+		printf("user input error\n");
+		exit(1);
+	}
 	STACK_PUSH(val);
 }
 
@@ -616,6 +626,6 @@ int main(int argc, char *argv[])
 			}
 		}
 	} while(found);
-	
+
 	return 0;
 }
