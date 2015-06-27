@@ -627,5 +627,7 @@ int main(int argc, char *argv[])
 		}
 	} while(found);
 
+	free(program.image);
+
 	return 0;
 }
